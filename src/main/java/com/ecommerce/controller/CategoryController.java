@@ -3,6 +3,7 @@ package com.ecommerce.controller;
 import com.ecommerce.dto.request.CategoryRequestDto;
 import com.ecommerce.dto.response.CategoryResponseDto;
 import com.ecommerce.model.Category;
+import com.ecommerce.model.CategoryType;
 import com.ecommerce.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class CategoryController {
     public ResponseEntity<CategoryResponseDto> createCategory(@RequestBody CategoryRequestDto categoryRequestDto) {
         Category category = new Category();
         category.setName(categoryRequestDto.getName());
-        category.setType(categoryRequestDto.getType());
+        category.setType(CategoryType.valueOf(categoryRequestDto.getType().toUpperCase()));
         category.setParentCategoryId(categoryRequestDto.getParentCategoryId());
         Category createdCategory = categoryService.createCategory(category);
         return ResponseEntity.ok(convertToResponseDto(createdCategory));
@@ -45,7 +46,7 @@ public class CategoryController {
         Category category = new Category();
         category.setId(id);
         category.setName(categoryRequestDto.getName());
-        category.setType(categoryRequestDto.getType());
+        category.setType(CategoryType.valueOf(categoryRequestDto.getType().toUpperCase()));
         category.setParentCategoryId(categoryRequestDto.getParentCategoryId());
         Category updatedCategory = categoryService.updateCategory(id, category);
         return ResponseEntity.ok(convertToResponseDto(updatedCategory));

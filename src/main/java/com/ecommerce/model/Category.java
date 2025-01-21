@@ -30,4 +30,8 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products = new ArrayList<>();
+
+    public void setType(String type) {
+        this.type = CategoryType.valueOf(type.toUpperCase()); // Convert String to CategoryType
+    }
 } 

@@ -39,4 +39,8 @@ public class Product {
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public Product(Long id) {
+        this.id = id;
+    }
 } 
