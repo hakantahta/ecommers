@@ -1,0 +1,62 @@
+e-commerce/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/
+│   │   │       └── ecommerce/
+│   │   │           ├── EcommerceApplication.java
+│   │   │           ├── config/
+│   │   │           │   ├── SecurityConfig.java
+│   │   │           │   ├── JwtConfig.java
+│   │   │           │   └── SwaggerConfig.java
+│   │   │           ├── controller/
+│   │   │           │   ├── AuthController.java
+│   │   │           │   ├── ProductController.java
+│   │   │           │   ├── CategoryController.java
+│   │   │           │   ├── OrderController.java
+│   │   │           │   ├── CartController.java
+│   │   │           │   └── FavoriteController.java
+│   │   │           ├── model/
+│   │   │           │   ├── User.java
+│   │   │           │   ├── UserRole.java
+│   │   │           │   ├── Product.java
+│   │   │           │   ├── Category.java
+│   │   │           │   ├── CategoryType.java
+│   │   │           │   ├── Order.java
+│   │   │           │   ├── OrderItem.java
+│   │   │           │   ├── Payment.java
+│   │   │           │   ├── CartItem.java
+│   │   │           │   └── Favorite.java
+│   │   │           ├── repository/
+│   │   │           │   ├── UserRepository.java
+│   │   │           │   ├── ProductRepository.java
+│   │   │           │   ├── CategoryRepository.java
+│   │   │           │   └── ...
+│   │   │           ├── service/
+│   │   │           │   ├── AuthService.java
+│   │   │           │   ├── ProductService.java
+│   │   │           │   ├── CategoryService.java
+│   │   │           │   ├── impl/
+│   │   │           │   │   ├── AuthServiceImpl.java
+│   │   │           │   │   ├── ProductServiceImpl.java
+│   │   │           │   │   └── CategoryServiceImpl.java
+│   │   │           │   └── ...
+│   │   │           ├── dto/
+│   │   │           │   ├── request/
+│   │   │           │   │   ├── UserRequestDto.java
+│   │   │           │   │   ├── ProductRequestDto.java
+│   │   │           │   │   └── CategoryRequestDto.java
+│   │   │           │   └── response/
+│   │   │           │       ├── UserResponseDto.java
+│   │   │           │       ├── ProductResponseDto.java
+│   │   │           │       └── CategoryResponseDto.java
+│   │   │           ├── exception/
+│   │   │           │   ├── GlobalExceptionHandler.java
+│   │   │           │   └── CustomExceptions.java
+│   │   │           ├── security/
+│   │   │           │   ├── JwtTokenProvider.java
+│   │   │           │   ├── UserDetailsServiceImpl.java
+│   │   │           │   └── ...
+│   │   │           └── util/
+│   │   └── resources/
+│   │       └── application.properties 
