@@ -5,65 +5,43 @@ import com.ecommerce.dto.response.CategoryResponseDto;
 import com.ecommerce.model.Category;
 import com.ecommerce.model.CategoryType;
 import com.ecommerce.service.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+@RequiredArgsConstructor
 public class CategoryController {
 
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<List<CategoryResponseDto>> getAllCategories() {
-        List<Category> categories = categoryService.getAllCategories();
-        // DTO dönüşümü yapılabilir
-        return ResponseEntity.ok(categories.stream().map(this::convertToResponseDto).toList());
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponseDto> getCategoryById(@PathVariable Long id) {
-        Category category = categoryService.getCategoryById(id);
-        return ResponseEntity.ok(convertToResponseDto(category));
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
     @PostMapping
     public ResponseEntity<CategoryResponseDto> createCategory(@RequestBody CategoryRequestDto categoryRequestDto) {
-        Category category = new Category();
-        category.setName(categoryRequestDto.getName());
-        category.setType(CategoryType.valueOf(categoryRequestDto.getType().toUpperCase()));
-        category.setParentCategoryId(categoryRequestDto.getParentCategoryId());
-        Category createdCategory = categoryService.createCategory(category);
-        return ResponseEntity.ok(convertToResponseDto(createdCategory));
+        return ResponseEntity.ok(categoryService.createCategory(categoryRequestDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponseDto> updateCategory(@PathVariable Long id, @RequestBody CategoryRequestDto categoryRequestDto) {
-        Category category = new Category();
-        category.setId(id);
-        category.setName(categoryRequestDto.getName());
-        category.setType(CategoryType.valueOf(categoryRequestDto.getType().toUpperCase()));
-        category.setParentCategoryId(categoryRequestDto.getParentCategoryId());
-        Category updatedCategory = categoryService.updateCategory(id, category);
-        return ResponseEntity.ok(convertToResponseDto(updatedCategory));
+    public ResponseEntity<CategoryResponseDto> updateCategory(@PathVariable Long id, 
+                                                            @RequestBody CategoryRequestDto categoryRequestDto) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, categoryRequestDto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    private CategoryResponseDto convertToResponseDto(Category category) {
-        CategoryResponseDto dto = new CategoryResponseDto();
-        dto.setId(category.getId());
-        dto.setName(category.getName());
-        dto.setType(category.getType());
-        dto.setParentCategoryId(category.getParentCategoryId());
-        return dto;
+        return ResponseEntity.ok().build();
     }
 } 

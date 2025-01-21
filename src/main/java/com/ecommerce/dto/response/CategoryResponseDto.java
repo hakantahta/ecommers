@@ -1,11 +1,14 @@
 package com.ecommerce.dto.response;
 
+import com.ecommerce.model.CategoryType;
 import lombok.Data;
+import java.util.List;
 
 @Data
 public class CategoryResponseDto {
     private Long id;
     private String name;
-    private String type; // MAIN veya SUB
-    private Long parentCategoryId; // Eğer alt kategori ise
+    private CategoryType type;
+    private Long parentCategoryId;
+    private List<CategoryResponseDto> subCategories;
 } 

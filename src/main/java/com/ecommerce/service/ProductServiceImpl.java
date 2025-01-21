@@ -1,21 +1,31 @@
-package com.ecommerce.service.impl;
+package com.ecommerce.service;
 
 import com.ecommerce.dto.request.ProductRequestDto;
 import com.ecommerce.dto.response.ProductResponseDto;
 import com.ecommerce.dto.response.CategoryResponseDto;
-import com.ecommerce.model.Category;
 import com.ecommerce.model.Product;
 import com.ecommerce.repository.ProductRepository;
-import com.ecommerce.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+public interface ProductService {
+    List<ProductResponseDto> getAllProducts();
+    
+    ProductResponseDto getProductById(Long id);
+    
+    ProductResponseDto createProduct(ProductRequestDto requestDto);
+    
+    ProductResponseDto updateProduct(Long id, ProductRequestDto requestDto);
+    
+    void deleteProduct(Long id);
+}
+
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService {
+public abstract class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
@@ -66,6 +76,10 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
+    public abstract Product createProduct(Product product);
+
+    public abstract Product updateProduct(Long id, Product product);
+
     private ProductResponseDto convertToResponseDto(Product product) {
         ProductResponseDto dto = new ProductResponseDto();
         dto.setId(product.getId());
@@ -80,12 +94,7 @@ public class ProductServiceImpl implements ProductService {
             categoryDto.setId(product.getCategory().getId());
             categoryDto.setName(product.getCategory().getName());
             categoryDto.setType(product.getCategory().getType());
-            
-            Category parent = product.getCategory().getParent();
-            if (parent != null) {
-                categoryDto.setParentCategoryId(parent.getId());
-            }
-            
+            categoryDto.setParentCategoryId(product.getCategory().getParentCategoryId());
             dto.setCategory(categoryDto);
         }
         

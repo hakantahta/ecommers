@@ -1,16 +1,20 @@
 package com.ecommerce.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Data
 @Entity
 @Table(name = "products")
 @EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +27,7 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    private Double price;
+    private BigDecimal price;
 
     @Column(nullable = false)
     private Integer stock;
@@ -39,6 +43,8 @@ public class Product {
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    private Boolean active = true;
 
     public Product(Long id) {
         this.id = id;
