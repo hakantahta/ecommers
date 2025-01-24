@@ -1,26 +1,31 @@
 package com.ecommerce.controller;
 
 import com.ecommerce.dto.response.FavoriteResponseDto;
+import com.ecommerce.dto.response.ProductResponseDto;
 import com.ecommerce.model.Favorite;
 import com.ecommerce.service.FavoriteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/favorites")
+@RequiredArgsConstructor
 public class FavoriteController {
 
-    @Autowired
-    private FavoriteService favoriteService;
+    private final FavoriteService favoriteService;
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<FavoriteResponseDto>> getFavorites(@PathVariable Long userId) {
         List<Favorite> favorites = favoriteService.getFavoritesByUserId(userId);
-        // DTO dönüşümü yapılabilir
-        return ResponseEntity.ok(favorites.stream().map(this::convertToResponseDto).toList());
+        List<FavoriteResponseDto> responseDtos = favorites.stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responseDtos);
     }
 
     @PostMapping
@@ -39,7 +44,17 @@ public class FavoriteController {
         FavoriteResponseDto dto = new FavoriteResponseDto();
         dto.setId(favorite.getId());
         dto.setUserId(favorite.getUserId());
-        dto.setProduct(favorite.getProduct());
+        
+        // Product dönüşümü için ProductResponseDto kullanıyoruz
+        ProductResponseDto productDto = new ProductResponseDto();
+        productDto.setId(favorite.getProduct().getId());
+        productDto.setName(favorite.getProduct().getName());
+        productDto.setDescription(favorite.getProduct().getDescription());
+        productDto.setPrice(favorite.getProduct().getPrice());
+        productDto.setStock(favorite.getProduct().getStock());
+        productDto.setActive(favorite.getProduct().getActive());
+        
+        dto.setProduct(productDto);
         return dto;
     }
 } 

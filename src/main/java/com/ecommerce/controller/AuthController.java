@@ -1,5 +1,8 @@
 package com.ecommerce.controller;
 
+import com.ecommerce.dto.request.LoginRequestDto;
+import com.ecommerce.dto.request.RegisterRequestDto;
+import com.ecommerce.dto.response.AuthResponseDto;
 import com.ecommerce.model.User;
 import com.ecommerce.service.AuthService;
 import org.springframework.http.ResponseEntity;
