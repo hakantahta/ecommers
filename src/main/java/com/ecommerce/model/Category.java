@@ -34,8 +34,4 @@ public class Category {
 
     @OneToMany(mappedBy = "parent")
     private List<Category> subCategories;
-
-    public void setType(String type) {
-        this.type = CategoryType.valueOf(type.toUpperCase()); // Convert String to CategoryType
-    }
 } 
