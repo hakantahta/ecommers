@@ -5,8 +5,8 @@ import com.ecommerce.dto.response.CartItemResponseDto;
 import java.util.List;
 
 public interface CartService {
-    List<CartItemResponseDto> getCartItemsByUserId(Long userId);
-    CartItemResponseDto addCartItem(CartItemRequestDto cartItemRequestDto);
-    void removeCartItem(Long id);
+    List<CartItemResponseDto> getCartItems();
+    CartItemResponseDto addToCart(CartItemRequestDto cartItemRequestDto);
+    void removeFromCart(Long id);
     CartItemResponseDto updateCartItem(Long id, CartItemRequestDto cartItemRequestDto);
 }

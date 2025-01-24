@@ -1,14 +1,15 @@
-package com.ecommerce.model;
+package com.hakantahta.eticaret.model;
 
+import com.ecommerce.model.CategoryType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "users")
+@Table(name = "categories")
 @Data
 @NoArgsConstructor
-public class User {
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,13 +17,6 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
-
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserRole role;
+    private CategoryType type;
 } 

@@ -21,15 +21,17 @@ public class CartServiceImpl implements CartService {
     private final ProductRepository productRepository;
 
     @Override
-    public List<CartItemResponseDto> getCartItemsByUserId(Long userId) {
-        return cartItemRepository.findByUserId(userId)
+    public List<CartItemResponseDto> getCartItems() {
+        // Aktif kullanıcının sepetini getir
+        // Gerçek uygulamada SecurityContext'ten kullanıcı ID'si alınır
+        return cartItemRepository.findAll()
                 .stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public CartItemResponseDto addCartItem(CartItemRequestDto requestDto) {
+    public CartItemResponseDto addToCart(CartItemRequestDto requestDto) {
         Product product = productRepository.findById(requestDto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -43,7 +45,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void removeCartItem(Long id) {
+    public void removeFromCart(Long id) {
         cartItemRepository.deleteById(id);
     }
 
@@ -65,7 +67,8 @@ public class CartServiceImpl implements CartService {
         dto.setProductName(cartItem.getProduct().getName());
         dto.setQuantity(cartItem.getQuantity());
         dto.setPrice(cartItem.getProduct().getPrice());
-        dto.setTotalPrice(cartItem.getProduct().getPrice().multiply(java.math.BigDecimal.valueOf(cartItem.getQuantity())));
+        dto.setTotalPrice(cartItem.getProduct().getPrice()
+                .multiply(java.math.BigDecimal.valueOf(cartItem.getQuantity())));
         return dto;
     }
 } 

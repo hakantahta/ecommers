@@ -7,5 +7,5 @@ import lombok.Data;
 public class CategoryRequestDto {
     private String name;
     private CategoryType type;
-    private Long parentCategoryId;
+    private Long parentId;
 } 

@@ -22,16 +22,13 @@ public class Category {
     @Column(nullable = false)
     private CategoryType type;
 
-    @Column(name = "parent_category_id")
-    private Long parentCategoryId;
-
-    @OneToMany(mappedBy = "category")
-    private List<Product> products;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<Category> subCategories;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    private List<Product> products;
 } 

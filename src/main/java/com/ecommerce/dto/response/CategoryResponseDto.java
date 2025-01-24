@@ -9,6 +9,6 @@ public class CategoryResponseDto {
     private Long id;
     private String name;
     private CategoryType type;
-    private Long parentCategoryId;
+    private Long parentId;
     private List<CategoryResponseDto> subCategories;
 } 

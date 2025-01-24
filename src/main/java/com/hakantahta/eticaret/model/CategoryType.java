@@ -1,4 +1,4 @@
-package com.ecommerce.model;
+package com.hakantahta.eticaret.model;
 
 public enum CategoryType {
     ELECTRONICS,

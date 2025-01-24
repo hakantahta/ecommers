@@ -4,6 +4,7 @@ import com.ecommerce.dto.request.LoginRequestDto;
 import com.ecommerce.dto.request.RegisterRequestDto;
 import com.ecommerce.dto.response.AuthResponseDto;
 import com.ecommerce.model.User;
+import com.ecommerce.model.UserRole;
 import com.ecommerce.repository.UserRepository;
 import com.ecommerce.service.AuthService;
 import com.ecommerce.service.JwtService;
@@ -29,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(requestDto.getEmail());
         user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
         user.setName(requestDto.getName());
+        user.setRole(UserRole.CUSTOMER);
         
         User savedUser = userRepository.save(user);
         String token = jwtService.generateToken(savedUser);

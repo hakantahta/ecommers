@@ -9,7 +9,8 @@ public class ProductResponseDto {
     private String name;
     private String description;
     private BigDecimal price;
-    private CategoryResponseDto category;
     private Integer stock;
+    private Long categoryId;
+    private String categoryName;
     private Boolean active;
 } 

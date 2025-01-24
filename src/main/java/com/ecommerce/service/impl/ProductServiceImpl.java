@@ -2,9 +2,9 @@ package com.ecommerce.service.impl;
 
 import com.ecommerce.dto.request.ProductRequestDto;
 import com.ecommerce.dto.response.ProductResponseDto;
-import com.ecommerce.dto.response.CategoryResponseDto;
 import com.ecommerce.model.Category;
 import com.ecommerce.model.Product;
+import com.ecommerce.repository.CategoryRepository;
 import com.ecommerce.repository.ProductRepository;
 import com.ecommerce.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public List<ProductResponseDto> getAllProducts() {
@@ -41,8 +42,15 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(requestDto.getDescription());
         product.setPrice(requestDto.getPrice());
         product.setStock(requestDto.getStock());
+        
+        if (requestDto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(requestDto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+            product.setCategory(category);
+        }
+        
         product.setActive(true);
-
+        
         Product savedProduct = productRepository.save(product);
         return convertToResponseDto(savedProduct);
     }
@@ -51,12 +59,20 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDto updateProduct(Long id, ProductRequestDto requestDto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-
+        
         product.setName(requestDto.getName());
         product.setDescription(requestDto.getDescription());
         product.setPrice(requestDto.getPrice());
         product.setStock(requestDto.getStock());
-
+        
+        if (requestDto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(requestDto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+            product.setCategory(category);
+        } else {
+            product.setCategory(null);
+        }
+        
         Product updatedProduct = productRepository.save(product);
         return convertToResponseDto(updatedProduct);
     }
@@ -73,22 +89,13 @@ public class ProductServiceImpl implements ProductService {
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
         dto.setStock(product.getStock());
-        dto.setActive(product.getActive());
         
         if (product.getCategory() != null) {
-            CategoryResponseDto categoryDto = new CategoryResponseDto();
-            categoryDto.setId(product.getCategory().getId());
-            categoryDto.setName(product.getCategory().getName());
-            categoryDto.setType(product.getCategory().getType());
-            
-            Category parent = product.getCategory().getParent();
-            if (parent != null) {
-                categoryDto.setParentCategoryId(parent.getId());
-            }
-            
-            dto.setCategory(categoryDto);
+            dto.setCategoryId(product.getCategory().getId());
+            dto.setCategoryName(product.getCategory().getName());
         }
         
+        dto.setActive(product.getActive());
         return dto;
     }
 } 

@@ -1,4 +1,4 @@
-package com.ecommerce.model;
+package com.hakantahta.eticaret.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -26,8 +26,6 @@ public class Product {
     private Integer stock;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-
-    private Boolean active = true;
 } 

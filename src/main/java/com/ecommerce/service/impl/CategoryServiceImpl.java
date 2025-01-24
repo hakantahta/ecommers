@@ -37,7 +37,13 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = new Category();
         category.setName(requestDto.getName());
         category.setType(requestDto.getType());
-        category.setParentCategoryId(requestDto.getParentCategoryId());
+        
+        // Parent category varsa, set et
+        if (requestDto.getParentId() != null) {
+            Category parentCategory = categoryRepository.findById(requestDto.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Parent category not found"));
+            category.setParent(parentCategory);
+        }
         
         Category savedCategory = categoryRepository.save(category);
         return convertToResponseDto(savedCategory);
@@ -50,7 +56,15 @@ public class CategoryServiceImpl implements CategoryService {
         
         category.setName(requestDto.getName());
         category.setType(requestDto.getType());
-        category.setParentCategoryId(requestDto.getParentCategoryId());
+        
+        // Parent category güncelleme
+        if (requestDto.getParentId() != null) {
+            Category parentCategory = categoryRepository.findById(requestDto.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Parent category not found"));
+            category.setParent(parentCategory);
+        } else {
+            category.setParent(null);
+        }
         
         Category updatedCategory = categoryRepository.save(category);
         return convertToResponseDto(updatedCategory);
@@ -66,9 +80,14 @@ public class CategoryServiceImpl implements CategoryService {
         dto.setId(category.getId());
         dto.setName(category.getName());
         dto.setType(category.getType());
-        dto.setParentCategoryId(category.getParentCategoryId());
         
-        if (category.getSubCategories() != null) {
+        // Parent category bilgisini set et
+        if (category.getParent() != null) {
+            dto.setParentId(category.getParent().getId());
+        }
+        
+        // Alt kategorileri recursive olarak dönüştür
+        if (category.getSubCategories() != null && !category.getSubCategories().isEmpty()) {
             dto.setSubCategories(
                 category.getSubCategories().stream()
                     .map(this::convertToResponseDto)
