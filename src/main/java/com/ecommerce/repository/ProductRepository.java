@@ -9,8 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findByVendorId(Long vendorId);
-    
     List<Product> findByCategoryId(Long categoryId);
     
     @Query("SELECT p FROM Product p WHERE " +

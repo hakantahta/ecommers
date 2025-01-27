@@ -1,13 +1,1 @@
-package com.hakantahta.eticaret;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class EticaretApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
-
-}
+// Delete this file as it's in the wrong package and not needed

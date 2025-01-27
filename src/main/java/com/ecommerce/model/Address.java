@@ -3,13 +3,12 @@ package com.ecommerce.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
 
 @Entity
-@Table(name = "cart_items")
+@Table(name = "addresses")
 @Data
 @NoArgsConstructor
-public class CartItem {
+public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,13 +17,21 @@ public class CartItem {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(nullable = false)
+    private String title;
 
     @Column(nullable = false)
-    private Integer quantity;
+    private String fullAddress;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private String city;
+
+    @Column(nullable = false)
+    private String district;
+
+    @Column(nullable = false)
+    private String zipCode;
+
+    @Column(nullable = false)
+    private String phone;
 } 

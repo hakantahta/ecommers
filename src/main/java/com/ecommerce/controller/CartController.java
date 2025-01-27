@@ -3,25 +3,19 @@ package com.ecommerce.controller;
 import com.ecommerce.dto.request.CartItemRequestDto;
 import com.ecommerce.dto.response.CartItemResponseDto;
 import com.ecommerce.model.CartItem;
-import com.ecommerce.model.Product;
 import com.ecommerce.service.CartService;
-import com.ecommerce.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
 public class CartController {
-
     private final CartService cartService;
-
-    @Autowired
-    private ProductRepository productRepository;
 
     @GetMapping
     public ResponseEntity<List<CartItemResponseDto>> getCartItems() {
@@ -48,9 +42,12 @@ public class CartController {
     private CartItemResponseDto convertToResponseDto(CartItem cartItem) {
         CartItemResponseDto dto = new CartItemResponseDto();
         dto.setId(cartItem.getId());
-        dto.setUserId(cartItem.getUserId());
+        dto.setUserId(cartItem.getUser().getId());
         dto.setProductId(cartItem.getProduct().getId());
+        dto.setProductName(cartItem.getProduct().getName());
         dto.setQuantity(cartItem.getQuantity());
+        dto.setPrice(cartItem.getPrice());
+        dto.setTotalPrice(cartItem.getPrice().multiply(new BigDecimal(cartItem.getQuantity())));
         return dto;
     }
 } 

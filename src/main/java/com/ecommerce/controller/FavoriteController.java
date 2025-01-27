@@ -4,7 +4,6 @@ import com.ecommerce.dto.response.FavoriteResponseDto;
 import com.ecommerce.dto.response.ProductResponseDto;
 import com.ecommerce.model.Favorite;
 import com.ecommerce.service.FavoriteService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
@@ -43,9 +42,8 @@ public class FavoriteController {
     private FavoriteResponseDto convertToResponseDto(Favorite favorite) {
         FavoriteResponseDto dto = new FavoriteResponseDto();
         dto.setId(favorite.getId());
-        dto.setUserId(favorite.getUserId());
+        dto.setUserId(favorite.getUser().getId());
         
-        // Product dönüşümü için ProductResponseDto kullanıyoruz
         ProductResponseDto productDto = new ProductResponseDto();
         productDto.setId(favorite.getProduct().getId());
         productDto.setName(favorite.getProduct().getName());

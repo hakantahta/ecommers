@@ -10,8 +10,16 @@ import java.util.List;
 public class OrderResponseDto {
     private Long id;
     private Long userId;
-    private OrderStatus status;
+    private Long addressId;
+    private String status;
     private BigDecimal totalPrice;
     private LocalDateTime createdAt;
-    private List<OrderItemResponseDto> items;
+    private List<OrderItemDto> items;
+
+    @Data
+    public static class OrderItemDto {
+        private Long productId;
+        private Integer quantity;
+        private BigDecimal price;
+    }
 } 
