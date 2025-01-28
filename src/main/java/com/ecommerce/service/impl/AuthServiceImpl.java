@@ -1,14 +1,14 @@
 package com.ecommerce.service.impl;
 
-import com.ecommerce.dto.request.LoginRequestDto;
-import com.ecommerce.dto.request.RegisterRequestDto;
-import com.ecommerce.dto.response.AuthResponseDto;
+import com.ecommerce.dto.AuthResponse;
+import com.ecommerce.dto.LoginRequest;
+import com.ecommerce.dto.RegisterRequest;
 import com.ecommerce.model.User;
-import com.ecommerce.model.UserRole;
 import com.ecommerce.repository.UserRepository;
+import com.ecommerce.security.JwtService;
 import com.ecommerce.service.AuthService;
-import com.ecommerce.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,51 +23,54 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponseDto register(RegisterRequestDto requestDto) {
-        try {
-            if (userRepository.existsByEmail(requestDto.getEmail())) {
-                throw new RuntimeException("Email already exists");
-            }
+    public AuthResponse register(RegisterRequest request) {
+        if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
+        
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
 
-            validateRegistrationRequest(requestDto);
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
 
-            User user = new User();
-            user.setEmail(requestDto.getEmail());
-            user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
-            user.setName(requestDto.getName());
-            user.setRole(UserRole.CUSTOMER);
-            
-            User savedUser = userRepository.save(user);
-            String token = jwtService.generateToken(savedUser);
-            
-            return new AuthResponseDto(token);
-        } catch (Exception e) {
-            throw new RuntimeException("Error during registration: " + e.getMessage());
-        }
-    }
+        var user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role("USER")
+                .build();
 
-    private void validateRegistrationRequest(RegisterRequestDto requestDto) {
-        if (requestDto.getEmail() == null || requestDto.getEmail().trim().isEmpty()) {
-            throw new RuntimeException("Email cannot be empty");
-        }
-        if (requestDto.getPassword() == null || requestDto.getPassword().trim().isEmpty()) {
-            throw new RuntimeException("Password cannot be empty");
-        }
-        if (requestDto.getName() == null || requestDto.getName().trim().isEmpty()) {
-            throw new RuntimeException("Name cannot be empty");
-        }
+        userRepository.save(user);
+
+        var token = jwtService.generateToken(user);
+        
+        return AuthResponse.builder()
+                .token(token)
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
     }
 
     @Override
-    public AuthResponseDto login(LoginRequestDto requestDto) {
-        User user = userRepository.findByEmail(requestDto.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public AuthResponse login(LoginRequest request) {
+        var user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new BadCredentialsException("User not found"));
 
-        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid password");
         }
 
-        String token = jwtService.generateToken(user);
-        return new AuthResponseDto(token);
+        var token = jwtService.generateToken(user);
+        
+        return AuthResponse.builder()
+                .token(token)
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
     }
 }

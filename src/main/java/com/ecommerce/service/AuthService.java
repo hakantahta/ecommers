@@ -1,10 +1,10 @@
 package com.ecommerce.service;
 
-import com.ecommerce.dto.request.LoginRequestDto;
-import com.ecommerce.dto.request.RegisterRequestDto;
-import com.ecommerce.dto.response.AuthResponseDto;
+import com.ecommerce.dto.AuthResponse;
+import com.ecommerce.dto.LoginRequest;
+import com.ecommerce.dto.RegisterRequest;
 
 public interface AuthService {
-    AuthResponseDto register(RegisterRequestDto requestDto);
-    AuthResponseDto login(LoginRequestDto requestDto);
-}
+    AuthResponse register(RegisterRequest request);
+    AuthResponse login(LoginRequest request);
+} 

@@ -8,7 +8,10 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     // Kullanıcıya özel sorgular eklenebilir
-    Optional<User> findByEmail(String email);
+    Optional<User> findByUsername(String username);
+    
+    // Kullanıcı adının veritabanında olup olmadığını kontrol eder
+    boolean existsByUsername(String username);
     
     // Email'in veritabanında olup olmadığını kontrol eder
     boolean existsByEmail(String email);
