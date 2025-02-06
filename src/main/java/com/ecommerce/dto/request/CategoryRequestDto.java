@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class CategoryRequestDto {
     private String name;
+    private String icon;
     private CategoryType type;
     private Long parentId;
 } 

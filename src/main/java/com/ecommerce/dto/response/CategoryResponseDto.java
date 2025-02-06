@@ -8,6 +8,7 @@ import java.util.List;
 public class CategoryResponseDto {
     private Long id;
     private String name;
+    private String icon;
     private CategoryType type;
     private Long parentId;
     private List<CategoryResponseDto> subCategories;
