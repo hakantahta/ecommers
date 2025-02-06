@@ -36,6 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponseDto createCategory(CategoryRequestDto requestDto) {
         Category category = new Category();
         category.setName(requestDto.getName());
+        category.setIcon(requestDto.getIcon());
         category.setType(requestDto.getType());
         
         // Parent category varsa, set et
@@ -55,6 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         
         category.setName(requestDto.getName());
+        category.setIcon(requestDto.getIcon());
         category.setType(requestDto.getType());
         
         // Parent category güncelleme
@@ -79,6 +81,7 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryResponseDto dto = new CategoryResponseDto();
         dto.setId(category.getId());
         dto.setName(category.getName());
+        dto.setIcon(category.getIcon());
         dto.setType(category.getType());
         
         // Parent category bilgisini set et
