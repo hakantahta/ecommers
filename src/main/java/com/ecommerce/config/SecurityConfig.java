@@ -29,9 +29,29 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/products/**").permitAll()
+                // Public endpoints
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/products/list", "/api/products/search/**", "/api/products/{id}").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().permitAll()
+                
+                // Admin endpoints
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/products/create", "/api/products/update/**", "/api/products/delete/**").hasRole("ADMIN")
+                .requestMatchers("/api/categories/**").hasRole("ADMIN")
+                .requestMatchers("/api/orders/manage/**").hasRole("ADMIN")
+                
+                // Vendor endpoints
+                .requestMatchers("/api/vendor/products/**").hasRole("VENDOR")
+                .requestMatchers("/api/vendor/orders/**").hasRole("VENDOR")
+                .requestMatchers("/api/vendor/reports/**").hasRole("VENDOR")
+                
+                // Customer endpoints
+                .requestMatchers("/api/cart/**").hasRole("CUSTOMER")
+                .requestMatchers("/api/orders/**").hasRole("CUSTOMER")
+                .requestMatchers("/api/favorites/**").hasRole("CUSTOMER")
+                
+                // Any authenticated user
+                .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
