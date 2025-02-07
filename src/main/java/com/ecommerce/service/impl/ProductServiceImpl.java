@@ -4,6 +4,7 @@ import com.ecommerce.dto.request.ProductRequestDto;
 import com.ecommerce.dto.response.ProductResponseDto;
 import com.ecommerce.model.Category;
 import com.ecommerce.model.Product;
+import com.ecommerce.model.ProductStatus;
 import com.ecommerce.repository.CategoryRepository;
 import com.ecommerce.repository.ProductRepository;
 import com.ecommerce.service.ProductService;
@@ -41,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
         product.setName(requestDto.getName());
         product.setDescription(requestDto.getDescription());
         product.setPrice(requestDto.getPrice());
-        product.setStock(requestDto.getStock());
+        product.setStockQuantity(requestDto.getStock());
         
         if (requestDto.getCategoryId() != null) {
             Category category = categoryRepository.findById(requestDto.getCategoryId())
@@ -49,7 +50,7 @@ public class ProductServiceImpl implements ProductService {
             product.setCategory(category);
         }
         
-        product.setActive(true);
+        product.setStatus(ProductStatus.ACTIVE);
         
         Product savedProduct = productRepository.save(product);
         return convertToResponseDto(savedProduct);
@@ -63,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
         product.setName(requestDto.getName());
         product.setDescription(requestDto.getDescription());
         product.setPrice(requestDto.getPrice());
-        product.setStock(requestDto.getStock());
+        product.setStockQuantity(requestDto.getStock());
         
         if (requestDto.getCategoryId() != null) {
             Category category = categoryRepository.findById(requestDto.getCategoryId())
@@ -88,14 +89,14 @@ public class ProductServiceImpl implements ProductService {
         dto.setName(product.getName());
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
-        dto.setStock(product.getStock());
+        dto.setStock(product.getStockQuantity());
         
         if (product.getCategory() != null) {
             dto.setCategoryId(product.getCategory().getId());
             dto.setCategoryName(product.getCategory().getName());
         }
         
-        dto.setActive(product.getActive());
+        dto.setActive(product.getStatus() == ProductStatus.ACTIVE);
         return dto;
     }
 } 

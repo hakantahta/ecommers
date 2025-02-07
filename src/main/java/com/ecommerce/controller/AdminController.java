@@ -1,83 +1,153 @@
 package com.ecommerce.controller;
 
-import com.ecommerce.model.Banner;
-import com.ecommerce.dto.request.CategoryRequestDto;
-import com.ecommerce.dto.response.CategoryResponseDto;
-import com.ecommerce.service.BannerService;
-import com.ecommerce.service.CategoryService;
+import com.ecommerce.dto.response.UserResponseDto;
+import com.ecommerce.model.AccountStatus;
+import com.ecommerce.model.UserRole;
+import com.ecommerce.service.AdminService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
+@Tag(name = "Admin", description = "Admin management APIs")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminController {
 
-    private final BannerService bannerService;
-    private final CategoryService categoryService;
+    private final AdminService adminService;
 
-    // Banner Management Endpoints
-    @GetMapping("/banners")
-    public ResponseEntity<List<Banner>> getAllBanners() {
-        return ResponseEntity.ok(bannerService.getAllBanners());
+    // User Management
+    @GetMapping("/users")
+    @Operation(summary = "Get all users")
+    public ResponseEntity<Page<UserResponseDto>> getAllUsers(Pageable pageable) {
+        return ResponseEntity.ok(adminService.getAllUsers(pageable));
     }
 
-    @GetMapping("/banners/{id}")
-    public ResponseEntity<Banner> getBannerById(@PathVariable Long id) {
-        return ResponseEntity.ok(bannerService.getBannerById(id));
+    @GetMapping("/users/role/{role}")
+    @Operation(summary = "Get users by role")
+    public ResponseEntity<Page<UserResponseDto>> getUsersByRole(
+            @PathVariable UserRole role,
+            Pageable pageable) {
+        return ResponseEntity.ok(adminService.getUsersByRole(role, pageable));
     }
 
-    @PostMapping("/banners")
-    public ResponseEntity<Banner> createBanner(@RequestBody Banner banner) {
-        return ResponseEntity.ok(bannerService.createBanner(banner));
-    }
-
-    @PutMapping("/banners/{id}")
-    public ResponseEntity<Banner> updateBanner(@PathVariable Long id, @RequestBody Banner banner) {
-        return ResponseEntity.ok(bannerService.updateBanner(id, banner));
-    }
-
-    @DeleteMapping("/banners/{id}")
-    public ResponseEntity<Void> deleteBanner(@PathVariable Long id) {
-        bannerService.deleteBanner(id);
+    @PatchMapping("/users/{userId}/status")
+    @Operation(summary = "Update user status")
+    public ResponseEntity<Void> updateUserStatus(
+            @PathVariable Long userId,
+            @RequestBody AccountStatus status) {
+        adminService.updateUserStatus(userId, status);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/banners/{id}/order")
-    public ResponseEntity<Void> updateBannerOrder(@PathVariable Long id, @RequestParam Integer newOrder) {
-        bannerService.updateBannerOrder(id, newOrder);
+    @PostMapping("/users/{userId}/ban")
+    @Operation(summary = "Ban user")
+    public ResponseEntity<Void> banUser(
+            @PathVariable Long userId,
+            @RequestBody String reason) {
+        adminService.banUser(userId, reason);
         return ResponseEntity.ok().build();
     }
 
-    // Category Management Endpoints
-    @GetMapping("/categories")
-    public ResponseEntity<List<CategoryResponseDto>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    @PostMapping("/users/{userId}/unban")
+    @Operation(summary = "Unban user")
+    public ResponseEntity<Void> unbanUser(@PathVariable Long userId) {
+        adminService.unbanUser(userId);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/categories/{id}")
-    public ResponseEntity<CategoryResponseDto> getCategoryById(@PathVariable Long id) {
-        return ResponseEntity.ok(categoryService.getCategoryById(id));
+    @DeleteMapping("/users/{userId}")
+    @Operation(summary = "Delete user")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+        adminService.deleteUser(userId);
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/categories")
-    public ResponseEntity<CategoryResponseDto> createCategory(@RequestBody CategoryRequestDto categoryRequest) {
-        return ResponseEntity.ok(categoryService.createCategory(categoryRequest));
+    // Role Management
+    @PatchMapping("/users/{userId}/role")
+    @Operation(summary = "Update user role")
+    public ResponseEntity<Void> updateUserRole(
+            @PathVariable Long userId,
+            @RequestBody UserRole newRole) {
+        adminService.updateUserRole(userId, newRole);
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/categories/{id}")
-    public ResponseEntity<CategoryResponseDto> updateCategory(@PathVariable Long id, @RequestBody CategoryRequestDto categoryRequest) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, categoryRequest));
+    // System Statistics
+    @GetMapping("/statistics")
+    @Operation(summary = "Get system statistics")
+    public ResponseEntity<Map<String, Object>> getStatistics() {
+        return ResponseEntity.ok(Map.of(
+                "totalUsers", adminService.getTotalUsers(),
+                "totalOrders", adminService.getTotalOrders(),
+                "totalRevenue", adminService.getTotalRevenue()
+        ));
     }
 
-    @DeleteMapping("/categories/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+    // Vendor Management
+    @GetMapping("/vendors/pending")
+    @Operation(summary = "Get pending vendor applications")
+    public ResponseEntity<Page<UserResponseDto>> getPendingVendors(Pageable pageable) {
+        return ResponseEntity.ok(adminService.getPendingVendors(pageable));
+    }
+
+    @PostMapping("/vendors/{userId}/approve")
+    @Operation(summary = "Approve vendor application")
+    public ResponseEntity<Void> approveVendor(@PathVariable Long userId) {
+        adminService.approveVendor(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/vendors/{userId}/reject")
+    @Operation(summary = "Reject vendor application")
+    public ResponseEntity<Void> rejectVendor(
+            @PathVariable Long userId,
+            @RequestBody String reason) {
+        adminService.rejectVendor(userId, reason);
+        return ResponseEntity.ok().build();
+    }
+
+    // Product Management
+    @PostMapping("/products/{productId}/approve")
+    @Operation(summary = "Approve product")
+    public ResponseEntity<Void> approveProduct(@PathVariable Long productId) {
+        adminService.approveProduct(productId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/products/{productId}/reject")
+    @Operation(summary = "Reject product")
+    public ResponseEntity<Void> rejectProduct(
+            @PathVariable Long productId,
+            @RequestBody String reason) {
+        adminService.rejectProduct(productId, reason);
+        return ResponseEntity.ok().build();
+    }
+
+    // Order Management
+    @PostMapping("/orders/{orderId}/cancel")
+    @Operation(summary = "Cancel order")
+    public ResponseEntity<Void> cancelOrder(
+            @PathVariable Long orderId,
+            @RequestBody String reason) {
+        adminService.cancelOrder(orderId, reason);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/orders/{orderId}/refund")
+    @Operation(summary = "Refund order")
+    public ResponseEntity<Void> refundOrder(@PathVariable Long orderId) {
+        adminService.refundOrder(orderId);
         return ResponseEntity.ok().build();
     }
 } 

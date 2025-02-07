@@ -3,6 +3,7 @@ package com.ecommerce.controller;
 import com.ecommerce.dto.response.FavoriteResponseDto;
 import com.ecommerce.dto.response.ProductResponseDto;
 import com.ecommerce.model.Favorite;
+import com.ecommerce.model.ProductStatus;
 import com.ecommerce.service.FavoriteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,8 +50,8 @@ public class FavoriteController {
         productDto.setName(favorite.getProduct().getName());
         productDto.setDescription(favorite.getProduct().getDescription());
         productDto.setPrice(favorite.getProduct().getPrice());
-        productDto.setStock(favorite.getProduct().getStock());
-        productDto.setActive(favorite.getProduct().getActive());
+        productDto.setStock(favorite.getProduct().getStockQuantity());
+        productDto.setActive(favorite.getProduct().getStatus() == ProductStatus.ACTIVE);
         
         dto.setProduct(productDto);
         return dto;

@@ -1,10 +1,7 @@
 package com.ecommerce.model;
 
 public enum CategoryType {
-    ELECTRONICS,
-    CLOTHING,
-    BOOKS,
-    HOME,
-    SPORTS,
-    OTHER
+    PHYSICAL,
+    DIGITAL,
+    SERVICE
 } 

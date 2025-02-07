@@ -3,6 +3,7 @@ package com.ecommerce.controller;
 import com.ecommerce.dto.request.OrderRequestDto;
 import com.ecommerce.dto.response.OrderResponseDto;
 import com.ecommerce.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequestDto orderRequestDto) {
+    public ResponseEntity<OrderResponseDto> createOrder(@Valid @RequestBody OrderRequestDto orderRequestDto) {
         return ResponseEntity.ok(orderService.createOrder(orderRequestDto));
     }
 

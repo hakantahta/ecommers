@@ -1,6 +1,7 @@
 package com.ecommerce.service.impl;
 
 import com.ecommerce.dto.request.OrderRequestDto;
+import com.ecommerce.dto.request.OrderItemRequestDto;
 import com.ecommerce.dto.response.OrderResponseDto;
 import com.ecommerce.exception.ResourceNotFoundException;
 import com.ecommerce.model.*;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,38 +41,45 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderResponseDto createOrder(OrderRequestDto orderRequest) {
-        User user = userRepository.findById(orderRequest.getUserId())
+    public OrderResponseDto createOrder(OrderRequestDto orderRequestDto) {
+        User user = userRepository.findById(orderRequestDto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        Address address = addressRepository.findById(orderRequest.getAddressId())
+        
+        Address address = addressRepository.findById(orderRequestDto.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
 
-        Order order = new Order();
-        order.setUser(user);
-        order.setAddress(address);
-        order.setStatus("PENDING");
-        order.setItems(new ArrayList<>());
+        Order order = Order.builder()
+                .user(user)
+                .shippingAddress(address)
+                .billingAddress(address)
+                .shippingMethod(orderRequestDto.getShippingMethod() == null ? "STANDARD" : orderRequestDto.getShippingMethod())
+                .paymentMethod(orderRequestDto.getPaymentMethod() == null ? "CREDIT_CARD" : orderRequestDto.getPaymentMethod())
+                .status(orderRequestDto.getStatus() == null ? "PENDING" : orderRequestDto.getStatus())
+                .createdAt(LocalDateTime.now())
+                .build();
 
-        BigDecimal totalPrice = BigDecimal.ZERO;
+        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal totalAmount = BigDecimal.ZERO;
 
-        for (var itemDto : orderRequest.getItems()) {
+        for (OrderItemRequestDto itemDto : orderRequestDto.getItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setProduct(product);
-            orderItem.setQuantity(itemDto.getQuantity());
-            orderItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(itemDto.getQuantity())));
-
-            order.getItems().add(orderItem);
-            totalPrice = totalPrice.add(orderItem.getPrice());
+            
+            OrderItem orderItem = OrderItem.builder()
+                    .order(order)
+                    .product(product)
+                    .quantity(itemDto.getQuantity())
+                    .unitPrice(product.getPrice())
+                    .build();
+            
+            orderItems.add(orderItem);
+            totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(itemDto.getQuantity())));
         }
 
-        order.setTotalPrice(totalPrice);
+        order.setOrderItems(orderItems);
+        order.setTotalPrice(totalAmount);
+        
         Order savedOrder = orderRepository.save(order);
-
         return mapToOrderResponseDto(savedOrder);
     }
 
@@ -107,12 +116,16 @@ public class OrderServiceImpl implements OrderService {
         OrderResponseDto dto = new OrderResponseDto();
         dto.setId(order.getId());
         dto.setUserId(order.getUser().getId());
-        dto.setAddressId(order.getAddress().getId());
+        dto.setShippingAddressId(order.getShippingAddress().getId());
+        dto.setBillingAddressId(order.getBillingAddress().getId());
         dto.setStatus(order.getStatus());
         dto.setTotalPrice(order.getTotalPrice());
         dto.setCreatedAt(order.getCreatedAt());
+        dto.setShippingMethod(order.getShippingMethod());
+        dto.setPaymentMethod(order.getPaymentMethod());
+        dto.setPaymentStatus(order.getPaymentStatus());
         
-        dto.setItems(order.getItems().stream()
+        dto.setItems(order.getOrderItems().stream()
                 .map(this::mapToOrderItemDto)
                 .collect(Collectors.toList()));
         
@@ -123,7 +136,8 @@ public class OrderServiceImpl implements OrderService {
         OrderResponseDto.OrderItemDto dto = new OrderResponseDto.OrderItemDto();
         dto.setProductId(item.getProduct().getId());
         dto.setQuantity(item.getQuantity());
-        dto.setPrice(item.getPrice());
+        dto.setUnitPrice(item.getUnitPrice());
+        dto.setTotalPrice(item.getTotalPrice());
         return dto;
     }
 } 

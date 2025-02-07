@@ -5,6 +5,7 @@ import com.ecommerce.dto.LoginRequest;
 import com.ecommerce.dto.RegisterRequest;
 import com.ecommerce.model.User;
 import com.ecommerce.model.UserRole;
+import com.ecommerce.model.AccountStatus;
 import com.ecommerce.repository.UserRepository;
 import com.ecommerce.security.JwtService;
 import com.ecommerce.service.AuthService;
@@ -30,10 +31,13 @@ public class AuthServiceImpl implements AuthService {
             UserRole.CUSTOMER;
 
         var user = User.builder()
-                .username(request.getUsername())
+                .name(request.getName())
+                .surname(request.getSurname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
+                .isVerified(true)
+                .accountStatus(role == UserRole.VENDOR ? AccountStatus.PENDING : AccountStatus.ACTIVE)
                 .build();
 
         userRepository.save(user);
@@ -49,13 +53,13 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
+                        request.getEmail(),
                         request.getPassword()
                 )
         );
 
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
+        var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 
         var token = jwtService.generateToken(user);
         return AuthResponse.builder()

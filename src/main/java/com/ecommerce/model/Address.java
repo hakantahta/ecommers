@@ -1,12 +1,18 @@
 package com.ecommerce.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
+@Getter
+@Setter
+@ToString(exclude = "user")
+@EqualsAndHashCode(exclude = "user")
 @Entity
 @Table(name = "addresses")
-@Data
 @NoArgsConstructor
 public class Address {
     @Id
@@ -20,18 +26,26 @@ public class Address {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(name = "full_address", nullable = false)
     private String fullAddress;
 
     @Column(nullable = false)
     private String city;
 
     @Column(nullable = false)
-    private String district;
+    private String state;
 
     @Column(nullable = false)
-    private String zipCode;
+    private String country;
 
-    @Column(nullable = false)
+    @Column(name = "postal_code", nullable = false)
+    private String postalCode;
+
     private String phone;
+
+    @Column(name = "additional_info")
+    private String additionalInfo;
+
+    @Column(name = "is_default")
+    private boolean isDefault = false;
 } 
