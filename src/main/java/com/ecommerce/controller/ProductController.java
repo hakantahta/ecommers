@@ -43,4 +43,39 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/featured")
+    public ResponseEntity<List<ProductResponseDto>> getFeaturedProducts() {
+        return ResponseEntity.ok(productService.getFeaturedProducts());
+    }
+
+    @GetMapping("/new-arrivals")
+    public ResponseEntity<List<ProductResponseDto>> getNewArrivals() {
+        return ResponseEntity.ok(productService.getNewArrivals());
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<ProductResponseDto>> getPopularProducts() {
+        return ResponseEntity.ok(productService.getPopularProducts());
+    }
+
+    @GetMapping("/discounted")
+    public ResponseEntity<List<ProductResponseDto>> getDiscountedProducts() {
+        return ResponseEntity.ok(productService.getDiscountedProducts());
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<ProductResponseDto>> getProductsByCategory(@PathVariable Long categoryId) {
+        return ResponseEntity.ok(productService.getProductsByCategory(categoryId));
+    }
+
+    @GetMapping("/vendor/{vendorId}")
+    public ResponseEntity<List<ProductResponseDto>> getProductsByVendor(@PathVariable Long vendorId) {
+        return ResponseEntity.ok(productService.getProductsByVendor(vendorId));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductResponseDto>> searchProducts(@RequestParam String query) {
+        return ResponseEntity.ok(productService.searchProducts(query));
+    }
 } 

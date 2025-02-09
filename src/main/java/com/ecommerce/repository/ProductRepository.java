@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -30,4 +31,25 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Modifying
     @Query("UPDATE Product p SET p.status = 'REJECTED', p.rejectionReason = :reason WHERE p.id = :productId")
     void rejectProduct(Long productId, String reason);
+
+    @Query("SELECT p FROM Product p WHERE p.isFeatured = true AND p.isActive = true ORDER BY p.createdAt DESC")
+    List<Product> findByIsFeaturedTrueAndIsActiveTrueOrderByCreatedAtDesc();
+    
+    List<Product> findByCreatedAtAfterAndIsActiveTrueOrderByCreatedAtDesc(LocalDateTime date);
+    
+    List<Product> findByOrderCountGreaterThanAndIsActiveTrueOrderByOrderCountDesc(Integer orderCount);
+    
+    List<Product> findByDiscountedPriceIsNotNullAndIsActiveTrueOrderByDiscountedPriceAsc();
+    
+    List<Product> findByCategoryIdAndIsActiveTrue(Long categoryId);
+    
+    List<Product> findByVendorIdAndIsActiveTrue(Long vendorId);
+    
+    List<Product> findByNameContainingIgnoreCaseAndIsActiveTrue(String query);
+
+    List<Product> findByIsFeaturedTrue();
+    List<Product> findTop10ByOrderByCreatedAtDesc();
+    List<Product> findTop10ByOrderByOrderCountDesc();
+    List<Product> findByDiscountedPriceIsNotNull();
+    List<Product> findByNameContainingIgnoreCase(String query);
 } 

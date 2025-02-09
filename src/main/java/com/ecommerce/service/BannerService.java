@@ -1,14 +1,14 @@
 package com.ecommerce.service;
 
-import com.ecommerce.model.Banner;
+import com.ecommerce.dto.BannerDTO;
 import java.util.List;
 
 public interface BannerService {
-    List<Banner> getAllBanners();
-    List<Banner> getActiveBanners();
-    Banner getBannerById(Long id);
-    Banner createBanner(Banner banner);
-    Banner updateBanner(Long id, Banner banner);
+    List<BannerDTO> getMainBanners();
+    List<BannerDTO> getSideBanners();
+    BannerDTO getBannerById(Long id);
+    BannerDTO createBanner(BannerDTO bannerDTO);
+    BannerDTO updateBanner(Long id, BannerDTO bannerDTO);
     void deleteBanner(Long id);
     void updateBannerOrder(Long id, Integer newOrder);
-} 
+}

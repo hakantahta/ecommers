@@ -50,8 +50,8 @@ public class FavoriteController {
         productDto.setName(favorite.getProduct().getName());
         productDto.setDescription(favorite.getProduct().getDescription());
         productDto.setPrice(favorite.getProduct().getPrice());
-        productDto.setStock(favorite.getProduct().getStockQuantity());
-        productDto.setActive(favorite.getProduct().getStatus() == ProductStatus.ACTIVE);
+        productDto.setStock(favorite.getProduct().getStock());
+        productDto.setIsActive(favorite.getProduct().getStatus() == ProductStatus.ACTIVE);
         
         dto.setProduct(productDto);
         return dto;

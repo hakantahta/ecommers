@@ -1,5 +1,7 @@
 package com.ecommerce.service.impl;
 
+import com.ecommerce.dto.ProductDTO;
+import com.ecommerce.dto.VendorDTO;
 import com.ecommerce.dto.request.ProductRequest;
 import com.ecommerce.dto.request.PromotionRequest;
 import com.ecommerce.dto.request.VendorProfileUpdateRequest;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class VendorServiceImpl implements VendorService {
 
+    private final VendorRepository vendorRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
@@ -34,49 +37,86 @@ public class VendorServiceImpl implements VendorService {
 
     @Override
     @Transactional
-    public void updateProfile(Long vendorId, VendorProfileUpdateRequest request) {
-        User vendor = getVendorById(vendorId);
-        vendor.setStoreName(request.getStoreName());
-        vendor.setStoreDescription(request.getStoreDescription());
-        vendor.setLogo(request.getLogo());
-        vendor.setBannerImage(request.getBannerImage());
-        vendor.setContactEmail(request.getContactEmail());
-        vendor.setContactPhone(request.getContactPhone());
-        vendor.setTaxNumber(request.getTaxNumber());
-        vendor.setCompanyName(request.getCompanyName());
-        vendor.setBankAccount(request.getBankAccount());
-        userRepository.save(vendor);
+    public VendorDTO createVendor(VendorDTO vendorDTO) {
+        User user = userRepository.findById(vendorDTO.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Önce vendor'ı oluştur
+        Vendor vendor = new Vendor();
+        vendor.setUser(user);
+        vendor.setStoreName(vendorDTO.getStoreName());
+        vendor.setStoreDescription(vendorDTO.getStoreDescription());
+        vendor.setContactEmail(vendorDTO.getContactEmail());
+        vendor.setContactPhone(vendorDTO.getContactPhone());
+
+        return convertToDTO(vendorRepository.save(vendor));
     }
 
     @Override
     @Transactional
-    public Product addProduct(Long vendorId, ProductRequest request) {
-        User vendor = getVendorById(vendorId);
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+    public ProductDTO createProduct(Long vendorId, ProductDTO productDTO) {
+        // Önce vendor'ı bul
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() -> new EntityNotFoundException("Vendor not found"));
 
+        // Kategoriyi bul
+        Category category = null;
+        if (productDTO.getCategoryId() != null) {
+            category = categoryRepository.findById(productDTO.getCategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+        }
+
+        // Ürünü oluştur
         Product product = new Product();
-        updateProductFromRequest(product, request);
-        product.setVendor(vendor);
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setStock(productDTO.getStock());
+        product.setImageUrl(productDTO.getImageUrl());
         product.setCategory(category);
+        product.setVendor(vendor);
         product.setStatus(ProductStatus.PENDING);
+        product.setIsActive(true);
 
-        return productRepository.save(product);
+        return convertToProductDTO(productRepository.save(product));
     }
 
     @Override
     @Transactional
-    public Product updateProduct(Long vendorId, Long productId, ProductRequest request) {
+    public ProductDTO updateProduct(Long vendorId, Long productId, ProductDTO productDTO) {
         Product product = getProductByIdAndVendorId(productId, vendorId);
-        updateProductFromRequest(product, request);
-        
-        if (request.getCategoryId() != null && !request.getCategoryId().equals(product.getCategory().getId())) {
-            Category category = categoryRepository.findById(request.getCategoryId())
+
+        // Kategoriyi güncelle
+        if (productDTO.getCategoryId() != null) {
+            Category category = categoryRepository.findById(productDTO.getCategoryId())
                     .orElseThrow(() -> new EntityNotFoundException("Category not found"));
             product.setCategory(category);
         }
-        
-        return productRepository.save(product);
+
+        // Diğer alanları güncelle
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setStock(productDTO.getStock());
+        product.setImageUrl(productDTO.getImageUrl());
+        product.setStatus(ProductStatus.PENDING);
+
+        return convertToProductDTO(productRepository.save(product));
+    }
+
+    @Override
+    public void updateProfile(Long vendorId, VendorProfileUpdateRequest request) {
+
+    }
+
+    @Override
+    public Product addProduct(Long vendorId, ProductRequest request) {
+        return null;
+    }
+
+    @Override
+    public Product updateProduct(Long vendorId, Long productId, ProductRequest request) {
+        return null;
     }
 
     @Override
@@ -91,7 +131,7 @@ public class VendorServiceImpl implements VendorService {
     @Transactional
     public void updateProductStock(Long vendorId, Long productId, Integer quantity) {
         Product product = getProductByIdAndVendorId(productId, vendorId);
-        product.setStockQuantity(quantity);
+        product.setStock(quantity);
         productRepository.save(product);
     }
 
@@ -248,9 +288,11 @@ public class VendorServiceImpl implements VendorService {
     private Product getProductByIdAndVendorId(Long productId, Long vendorId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
         if (!product.getVendor().getId().equals(vendorId)) {
-            throw new AccessDeniedException("Product does not belong to vendor");
+            throw new IllegalStateException("Product does not belong to this vendor");
         }
+
         return product;
     }
 
@@ -282,8 +324,17 @@ public class VendorServiceImpl implements VendorService {
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
-        product.setStockQuantity(request.getStockQuantity());
-        // Update other fields
+        product.setStock(request.getStockQuantity());
+        // Ana resmi images listesinden al (eğer varsa)
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            product.setImageUrl(request.getImages().get(0));
+        }
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+            product.setCategory(category);
+        }
+        product.setIsActive(request.getIsActive());
     }
 
     private void updatePromotionFromRequest(Promotion promotion, PromotionRequest request) {
@@ -297,5 +348,35 @@ public class VendorServiceImpl implements VendorService {
         promotion.setMinimumPurchaseAmount(request.getMinimumPurchaseAmount());
         promotion.setCouponCode(request.getCouponCode());
         promotion.setRequiresAdminApproval(request.getRequiresAdminApproval());
+    }
+
+    private VendorDTO convertToDTO(Vendor vendor) {
+        return VendorDTO.builder()
+                .id(vendor.getId())
+                .userId(vendor.getUser().getId())
+                .storeName(vendor.getStoreName())
+                .storeDescription(vendor.getStoreDescription())
+                .contactEmail(vendor.getContactEmail())
+                .contactPhone(vendor.getContactPhone())
+                .rating(vendor.getRating())
+                .reviewCount(vendor.getReviewCount())
+                .totalOrders(vendor.getTotalOrders())
+                .isActive(vendor.getIsActive())
+                .build();
+    }
+
+    private ProductDTO convertToProductDTO(Product product) {
+        return ProductDTO.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .imageUrl(product.getImageUrl())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .status(product.getStatus())
+                .vendorId(product.getVendor().getId())
+                .isActive(product.getIsActive())
+                .build();
     }
 } 

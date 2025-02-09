@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +21,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
+    private final VendorRepository vendorRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -56,6 +56,15 @@ public class DataInitializer implements CommandLineRunner {
         vendor.setContactEmail("contact@teststore.com");
         vendor.setContactPhone("+901234567890");
         userRepository.save(vendor);
+
+        // Vendor nesnesini oluştur
+        Vendor vendorEntity = new Vendor();
+        vendorEntity.setUser(vendor);
+        vendorEntity.setStoreName(vendor.getStoreName());
+        vendorEntity.setStoreDescription(vendor.getStoreDescription());
+        vendorEntity.setContactEmail(vendor.getContactEmail());
+        vendorEntity.setContactPhone(vendor.getContactPhone());
+        vendorRepository.save(vendorEntity);
 
         // Normal kullanıcı oluştur
         User customer = new User();
@@ -99,9 +108,10 @@ public class DataInitializer implements CommandLineRunner {
         laptop.setName("Test Laptop");
         laptop.setDescription("This is a test laptop");
         laptop.setPrice(new BigDecimal("999.99"));
-        laptop.setStockQuantity(10);
+        laptop.setStock(10);
+        laptop.setImageUrl("laptop.jpg");
         laptop.setCategory(electronics);
-        laptop.setVendor(vendor);
+        laptop.setVendor(vendorEntity);
         laptop.setStatus(ProductStatus.ACTIVE);
         productRepository.save(laptop);
 
@@ -109,9 +119,10 @@ public class DataInitializer implements CommandLineRunner {
         smartphone.setName("Test Smartphone");
         smartphone.setDescription("This is a test smartphone");
         smartphone.setPrice(new BigDecimal("499.99"));
-        smartphone.setStockQuantity(20);
+        smartphone.setStock(20);
+        smartphone.setImageUrl("smartphone.jpg");
         smartphone.setCategory(electronics);
-        smartphone.setVendor(vendor);
+        smartphone.setVendor(vendorEntity);
         smartphone.setStatus(ProductStatus.ACTIVE);
         productRepository.save(smartphone);
 
@@ -119,9 +130,10 @@ public class DataInitializer implements CommandLineRunner {
         tshirt.setName("Test T-Shirt");
         tshirt.setDescription("This is a test t-shirt");
         tshirt.setPrice(new BigDecimal("29.99"));
-        tshirt.setStockQuantity(100);
+        tshirt.setStock(100);
+        tshirt.setImageUrl("tshirt.jpg");
         tshirt.setCategory(clothing);
-        tshirt.setVendor(vendor);
+        tshirt.setVendor(vendorEntity);
         tshirt.setStatus(ProductStatus.ACTIVE);
         productRepository.save(tshirt);
 

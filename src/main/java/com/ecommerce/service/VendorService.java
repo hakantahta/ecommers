@@ -1,5 +1,7 @@
 package com.ecommerce.service;
 
+import com.ecommerce.dto.ProductDTO;
+import com.ecommerce.dto.VendorDTO;
 import com.ecommerce.dto.request.ProductRequest;
 import com.ecommerce.dto.request.PromotionRequest;
 import com.ecommerce.dto.request.VendorProfileUpdateRequest;
@@ -9,6 +11,7 @@ import com.ecommerce.model.Promotion;
 import com.ecommerce.model.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -51,4 +54,10 @@ public interface VendorService {
     // Financial Management
     Map<String, BigDecimal> getFinancialSummary(Long vendorId, LocalDateTime startDate, LocalDateTime endDate);
     List<Map<String, Object>> getTransactionHistory(Long vendorId, LocalDateTime startDate, LocalDateTime endDate);
+
+    VendorDTO createVendor(VendorDTO vendorDTO);
+    
+    ProductDTO createProduct(Long vendorId, ProductDTO productDTO);
+    
+    ProductDTO updateProduct(Long vendorId, Long productId, ProductDTO productDTO);
 } 

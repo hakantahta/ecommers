@@ -2,16 +2,14 @@ package com.ecommerce.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Builder
+@Table(name = "banners")
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "banners")
 public class Banner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,15 +21,21 @@ public class Banner {
     @Column(nullable = false)
     private String imageUrl;
 
-    @Column
+    @Column(nullable = false)
     private String link;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private BannerType type;
 
     @Column(nullable = false)
     private Integer displayOrder;
 
     @Column(nullable = false)
-    private Boolean active;
+    private Boolean isActive = true;
 
-    @Column
-    private String description;
+    public enum BannerType {
+        MAIN,
+        SIDE
+    }
 } 

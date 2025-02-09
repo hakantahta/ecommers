@@ -10,4 +10,11 @@ public interface ProductService {
     ProductResponseDto createProduct(ProductRequestDto requestDto);
     ProductResponseDto updateProduct(Long id, ProductRequestDto requestDto);
     void deleteProduct(Long id);
+    List<ProductResponseDto> getFeaturedProducts();
+    List<ProductResponseDto> getNewArrivals();
+    List<ProductResponseDto> getPopularProducts();
+    List<ProductResponseDto> getDiscountedProducts();
+    List<ProductResponseDto> getProductsByCategory(Long categoryId);
+    List<ProductResponseDto> getProductsByVendor(Long vendorId);
+    List<ProductResponseDto> searchProducts(String query);
 } 

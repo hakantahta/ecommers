@@ -1,6 +1,8 @@
 package com.ecommerce.service.impl;
 
+import com.ecommerce.dto.BannerDTO;
 import com.ecommerce.model.Banner;
+import com.ecommerce.model.Banner.BannerType;
 import com.ecommerce.repository.BannerRepository;
 import com.ecommerce.service.BannerService;
 import jakarta.persistence.EntityNotFoundException;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,42 +20,52 @@ public class BannerServiceImpl implements BannerService {
     private final BannerRepository bannerRepository;
 
     @Override
-    public List<Banner> getAllBanners() {
-        return bannerRepository.findAll();
+    public List<BannerDTO> getMainBanners() {
+        return bannerRepository.findByTypeAndIsActiveTrueOrderByDisplayOrderAsc(BannerType.MAIN)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Banner> getActiveBanners() {
-        return bannerRepository.findByActiveOrderByDisplayOrderAsc(true);
+    public List<BannerDTO> getSideBanners() {
+        return bannerRepository.findByTypeAndIsActiveTrueOrderByDisplayOrderAsc(BannerType.SIDE)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Banner getBannerById(Long id) {
-        return bannerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Banner not found with id: " + id));
+    public BannerDTO getBannerById(Long id) {
+        return convertToDTO(bannerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Banner not found with id: " + id)));
     }
 
     @Override
     @Transactional
-    public Banner createBanner(Banner banner) {
+    public BannerDTO createBanner(BannerDTO bannerDTO) {
+        Banner banner = convertToEntity(bannerDTO);
         if (banner.getDisplayOrder() == null) {
             banner.setDisplayOrder(bannerRepository.count() > 0 ? 
                 (int) bannerRepository.count() + 1 : 1);
         }
-        return bannerRepository.save(banner);
+        return convertToDTO(bannerRepository.save(banner));
     }
 
     @Override
     @Transactional
-    public Banner updateBanner(Long id, Banner banner) {
-        Banner existingBanner = getBannerById(id);
-        existingBanner.setTitle(banner.getTitle());
-        existingBanner.setImageUrl(banner.getImageUrl());
-        existingBanner.setLink(banner.getLink());
-        existingBanner.setDisplayOrder(banner.getDisplayOrder());
-        existingBanner.setActive(banner.getActive());
-        existingBanner.setDescription(banner.getDescription());
-        return bannerRepository.save(existingBanner);
+    public BannerDTO updateBanner(Long id, BannerDTO bannerDTO) {
+        Banner existingBanner = bannerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Banner not found with id: " + id));
+        
+        existingBanner.setTitle(bannerDTO.getTitle());
+        existingBanner.setImageUrl(bannerDTO.getImageUrl());
+        existingBanner.setLink(bannerDTO.getLink());
+        existingBanner.setType(bannerDTO.getType());
+        existingBanner.setDisplayOrder(bannerDTO.getDisplayOrder());
+        existingBanner.setIsActive(bannerDTO.getIsActive());
+        
+        return convertToDTO(bannerRepository.save(existingBanner));
     }
 
     @Override
@@ -64,8 +77,32 @@ public class BannerServiceImpl implements BannerService {
     @Override
     @Transactional
     public void updateBannerOrder(Long id, Integer newOrder) {
-        Banner banner = getBannerById(id);
+        Banner banner = bannerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Banner not found with id: " + id));
         banner.setDisplayOrder(newOrder);
         bannerRepository.save(banner);
+    }
+
+    private BannerDTO convertToDTO(Banner banner) {
+        return new BannerDTO(
+                banner.getId(),
+                banner.getTitle(),
+                banner.getImageUrl(),
+                banner.getLink(),
+                banner.getType(),
+                banner.getDisplayOrder(),
+                banner.getIsActive()
+        );
+    }
+
+    private Banner convertToEntity(BannerDTO dto) {
+        Banner banner = new Banner();
+        banner.setTitle(dto.getTitle());
+        banner.setImageUrl(dto.getImageUrl());
+        banner.setLink(dto.getLink());
+        banner.setType(dto.getType());
+        banner.setDisplayOrder(dto.getDisplayOrder());
+        banner.setIsActive(dto.getIsActive());
+        return banner;
     }
 } 

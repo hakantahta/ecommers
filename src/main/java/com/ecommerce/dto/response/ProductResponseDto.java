@@ -9,8 +9,16 @@ public class ProductResponseDto {
     private String name;
     private String description;
     private BigDecimal price;
+    private BigDecimal discountedPrice;
+    private String imageUrl;
     private Integer stock;
+    private Boolean isActive;
+    private Boolean isFeatured;
+    private Integer orderCount;
+    private Double rating;
+    private Integer reviewCount;
     private Long categoryId;
     private String categoryName;
-    private Boolean active;
+    private Long vendorId;
+    private String vendorName;
 } 
